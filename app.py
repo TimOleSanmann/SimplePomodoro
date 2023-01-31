@@ -16,11 +16,14 @@ def pomodoro_timer(duration):
     end_time = time.time() + duration * 60
     while time.time() < end_time:
         bar.update(math.floor(time.time() - (end_time - duration * 60)))
-        time.sleep(1)
+        try:
+            time.sleep(1)
+        except KeyboardInterrupt:
+            sys.exit(0)
     if os.name == "nt":
         os.system("msg * Pomodoro timer finished.")
     else:
-        os.system("osascript -e 'display notification \"Pomodoro timer finished.\" with title \"Pomodoro Timer\"'")
+        os.system("osascript -e 'display notification \"Pomodoro timer finished.\" with title \"Pomodoro Timer\" sound name \"\"'")
 
 def open_config_file():
     if os.name == "nt":
