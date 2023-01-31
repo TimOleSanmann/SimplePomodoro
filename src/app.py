@@ -4,6 +4,7 @@ import sys
 import json
 import math
 import progressbar
+from win11toast import toast
 
 def pomodoro_timer(duration):
     widgets = [
@@ -21,7 +22,7 @@ def pomodoro_timer(duration):
         except KeyboardInterrupt:
             sys.exit(0)
     if os.name == "nt":
-        os.system("msg * Pomodoro timer finished.")
+        toast("Pomodoro timer finished.")
     else:
         os.system("osascript -e 'display notification \"Pomodoro timer finished.\" with title \"Pomodoro Timer\" sound name \"\"'")
 
