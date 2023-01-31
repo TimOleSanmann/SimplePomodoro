@@ -26,48 +26,49 @@ def pomodoro_timer(duration):
     else:
         os.system("osascript -e 'display notification \"Pomodoro timer finished.\" with title \"Pomodoro Timer\" sound name \"\"'")
 
-def open_config_file():
+def open_config_file(config):
     if os.name == "nt":
-        os.system("start notepad config.json")
+        os.system(f"{config['editor']['windows']} config.json")
     else:
-        os.system("open -e config.json")
+        os.system(f"{config['editor']['macos']} config.json")
 
 def create_config_file():
     config = {
         "work": {"duration": 50},
-        "break": {"duration": 10}
+        "break": {"duration": 10},
+        "editor":{
+            "windows": "notepad",
+            "macos": "open -e"
+        }
     }
+
     with open("config.json", "w") as f:
         json.dump(config, f, indent=4)
     print("Created default configuration file at 'config.json'.")
-    open_config_file()
 
 if __name__ == "__main__":
+    command = sys.argv[1]
+
     if len(sys.argv) < 2 or len(sys.argv) > 3:
         print("Usage: python pomodoro.py [work/break/config] [duration (optional)]")
         sys.exit(1)
-        
-    command = sys.argv[1]
-    if command == "config":
-        if os.path.exists("config.json"):
-            open_config_file()
-        else:
-            create_config_file()
-        sys.exit(0)
     
     if not os.path.exists("config.json"):
         create_config_file()
-        sys.exit(0)
-        
+
     with open("config.json", "r") as f:
         config = json.load(f)
-    if command not in config:
+
+    if command not in ["work", "break", "config"]:
         print("Error: Invalid parameter. Use either 'work', 'break', or 'config'.")
         sys.exit(1)
-        
+
+    if command == "config":
+        open_config_file(config)
+        sys.exit(0)
+    
     if len(sys.argv) == 3:
         duration = int(sys.argv[2])
     else:
         duration = config[command]["duration"]
     pomodoro_timer(duration)
-
