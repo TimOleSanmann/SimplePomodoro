@@ -4,7 +4,9 @@ import sys
 import json
 import math
 import progressbar
-from win11toast import toast
+import platform
+if platform.system().lower().startswith('win'):
+    from win11toast import toast
 
 def pomodoro_timer(duration):
     widgets = [
