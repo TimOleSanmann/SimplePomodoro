@@ -51,11 +51,25 @@ def create_config_file():
         json.dump(config, f, indent=4)
     print("Created default configuration file at 'config.json'.")
 
+def start_meeting(config):
+    duration = 0
+    print(f"The meeting has started. Listen close, sit straight and leave if you're not required anymore.")
+    print(f"Press Ctrl-C to End the Meeting.", end="\n\n")
+    while True:
+        try:
+            print(f"The Meeting now lasts {math.floor(duration / 60)} minutes.", end="\r")
+            time.sleep(1)
+            duration += 1
+        except KeyboardInterrupt:
+            break_per_work = config["break"]["duration"] / config["work"]["duration"]
+            print(f"The Meeting duration was {math.floor(duration / 60)} minutes.")
+            print(f"You deserved a {math.floor(break_per_work * (duration/60))} minute break")
+
 if __name__ == "__main__":
     command = sys.argv[1]
 
     if len(sys.argv) < 2 or len(sys.argv) > 3:
-        print("Usage: python pomodoro.py [work/break/config] [duration (optional)]")
+        print("Usage: python pomodoro.py [work/break/config/meet] [duration (optional)]")
         sys.exit(1)
     
     if not os.path.exists("config.json"):
@@ -64,12 +78,16 @@ if __name__ == "__main__":
     with open("config.json", "r") as f:
         config = json.load(f)
 
-    if command not in ["work", "break", "config"]:
+    if command not in ["work", "break", "config", "meet"]:
         print("Error: Invalid parameter. Use either 'work', 'break', or 'config'.")
         sys.exit(1)
 
     if command == "config":
         open_config_file(config)
+        sys.exit(0)
+
+    if command == "meet":
+        start_meeting(config)
         sys.exit(0)
     
     if len(sys.argv) == 3:
