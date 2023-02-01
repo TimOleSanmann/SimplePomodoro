@@ -5,8 +5,13 @@ import json
 import math
 import progressbar
 import platform
+from pathlib import Path
 if platform.system().lower().startswith('win'):
     from win11toast import toast
+
+config_path = os.path.join(Path.home(), ".simplepomodoro")
+config_path_full = os.path.join(config_path, "config.json")
+
 
 def pomodoro_timer(duration):
     widgets = [
@@ -28,11 +33,11 @@ def pomodoro_timer(duration):
     elif platform.system().lower().startswith("dar"):
         os.system("osascript -e 'display notification \"Pomodoro timer finished.\" with title \"Pomodoro Timer\" sound name \"\"'")
 
-def open_config_file(config):
+def edit_config_file(config):
     if config["editor"]:
-        os.system(f"{config['editor']} config.json")
+        os.system(f"{config['editor']} {config_path_full}")
     else:
-        print(f"No editor was defined. Please find the config file and insert a editor.")
+        print(f"No editor was defined. Please find the config file at '{config_path_full}' and insert an editor.")
 
 def create_config_file():
     default_editor = ""
@@ -47,7 +52,9 @@ def create_config_file():
         "editor": default_editor
     }
 
-    with open("config.json", "w") as f:
+    Path(config_path).mkdir(parents=True, exist_ok=True)
+
+    with open(config_path_full, "w") as f:
         json.dump(config, f, indent=4)
     print("Created default configuration file at 'config.json'.")
 
@@ -72,10 +79,10 @@ if __name__ == "__main__":
         print("Usage: python pomodoro.py [work/break/config/meet] [duration (optional)]")
         sys.exit(1)
     
-    if not os.path.exists("config.json"):
+    if not os.path.exists(config_path):
         create_config_file()
 
-    with open("config.json", "r") as f:
+    with open(config_path_full, "r") as f:
         config = json.load(f)
 
     if command not in ["work", "break", "config", "meet"]:
@@ -83,7 +90,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if command == "config":
-        open_config_file(config)
+        edit_config_file(config)
         sys.exit(0)
 
     if command == "meet":
