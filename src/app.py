@@ -23,25 +23,28 @@ def pomodoro_timer(duration):
             time.sleep(1)
         except KeyboardInterrupt:
             sys.exit(0)
-    if os.name == "nt":
+    if platform.system().lower().startswith("win"):
         toast("Pomodoro timer finished.")
-    else:
+    elif platform.system().lower().startswith("dar"):
         os.system("osascript -e 'display notification \"Pomodoro timer finished.\" with title \"Pomodoro Timer\" sound name \"\"'")
 
 def open_config_file(config):
-    if os.name == "nt":
-        os.system(f"{config['editor']['windows']} config.json")
+    if config["editor"]:
+        os.system(f"{config['editor']} config.json")
     else:
-        os.system(f"{config['editor']['macos']} config.json")
+        print(f"No editor was defined. Please find the config file and insert a editor.")
 
 def create_config_file():
+    default_editor = ""
+    if platform.system().lower().startswith("win"):
+        default_editor = "notepad"
+    elif platform.system().lower().startswith("dar"):
+        default_editor = "open -e"
+
     config = {
         "work": {"duration": 50},
         "break": {"duration": 10},
-        "editor":{
-            "windows": "notepad",
-            "macos": "open -e"
-        }
+        "editor": default_editor
     }
 
     with open("config.json", "w") as f:
