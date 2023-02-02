@@ -66,6 +66,7 @@ def start_meeting(config):
             break_per_work = config["break"]["duration"] / config["work"]["duration"]
             print(f"The Meeting duration was {math.floor(duration / 60)} minutes.")
             print(f"You deserved a {math.floor(break_per_work * (duration/60))} minute break")
+            sys.exit(0)
 
 if __name__ == "__main__":
     command = sys.argv[1]
