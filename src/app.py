@@ -3,8 +3,8 @@ import os
 import sys
 import json
 import math
-import progressbar
 import platform
+from tqdm import tqdm
 from pathlib import Path
 if platform.system().lower().startswith('win'):
     from win11toast import toast
@@ -14,20 +14,15 @@ config_path_full = os.path.join(config_path, "config.json")
 
 
 def pomodoro_timer(duration):
-    widgets = [
-        progressbar.Percentage(),
-        " ", progressbar.Bar(),
-        " ", progressbar.ETA(),
-    ]
-    bar = progressbar.ProgressBar(maxval=duration * 60, widgets=widgets)
-    bar.start()
     end_time = time.time() + duration * 60
-    while time.time() < end_time:
-        bar.update(math.floor(time.time() - (end_time - duration * 60)))
-        try:
-            time.sleep(1)
-        except KeyboardInterrupt:
-            sys.exit(0)
+    with tqdm(total=duration * 60) as pbar:
+        while time.time() < end_time:
+            try:
+                time.sleep(1)
+                pbar.update(1)
+            except KeyboardInterrupt:
+                sys.exit(0)
+
     if platform.system().lower().startswith("win"):
         toast("Pomodoro timer finished.")
     elif platform.system().lower().startswith("dar"):

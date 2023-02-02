@@ -1,2 +1,2 @@
-progressbar==2.5
 win11toast==0.32
+tqdm==4.46.1
