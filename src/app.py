@@ -15,11 +15,11 @@ config_path_full = os.path.join(config_path, "config.json")
 
 def pomodoro_timer(duration):
     end_time = time.time() + duration * 60
-    with tqdm(total=duration * 60) as pbar:
+    with tqdm(total=duration * 60, desc=f"Started {duration} minutes timer", bar_format="{l_bar}{bar}") as pbar:
         while time.time() < end_time:
             try:
-                time.sleep(1)
                 pbar.update(1)
+                time.sleep(1)
             except KeyboardInterrupt:
                 sys.exit(0)
 
