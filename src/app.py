@@ -15,7 +15,7 @@ config_path_full = os.path.join(config_path, "config.json")
 
 def pomodoro_timer(duration):
     end_time = time.time() + duration * 60
-    with tqdm(total=duration, bar_format="{l_bar}{bar} {n_fmt}/{total_fmt} min") as pbar:
+    with tqdm(total=duration, leave=False, bar_format="{l_bar}{bar} {n_fmt}/{total_fmt} min") as pbar:
         i = 0
         while time.time() < end_time:
             try:
