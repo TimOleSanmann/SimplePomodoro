@@ -57,6 +57,13 @@ def create_config_file():
         json.dump(config, f, indent=4)
     print("Created default configuration file at 'config.json'.")
 
+def calc_after_meeting_break(config, duration):
+    break_per_work = config["break"]["duration"] / config["work"]["duration"]
+    return math.floor(break_per_work * (duration))
+
+def print_after_meet_break(duration):
+    print(f"You deserved a {duration} minutes break")
+
 def start_meeting(config):
     duration = 0
     print(f"The meeting has started. Listen close, sit straight and leave if you're not required anymore.")
@@ -67,9 +74,7 @@ def start_meeting(config):
             time.sleep(1)
             duration += 1
         except KeyboardInterrupt:
-            break_per_work = config["break"]["duration"] / config["work"]["duration"]
-            print(f"The Meeting duration was {math.floor(duration / 60)} minutes.")
-            print(f"You deserved a {math.floor(break_per_work * (duration/60))} minute break")
+            print_after_meet_break(calc_after_meeting_break(config, duration /60))
             sys.exit(0)
 
 if __name__ == "__main__":
@@ -93,7 +98,11 @@ if __name__ == "__main__":
         edit_config_file(config)
         sys.exit(0)
 
-    if command == "meet":
+    if command == "meet" and len(sys.argv) == 3:
+        duration = int(sys.argv[2])
+        print_after_meet_break(calc_after_meeting_break(config, duration))
+        sys.exit(0)
+    elif command == "meet":
         start_meeting(config)
         sys.exit(0)
     
