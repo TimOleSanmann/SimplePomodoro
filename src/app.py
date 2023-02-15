@@ -9,13 +9,13 @@ from pathlib import Path
 if platform.system().lower().startswith('win'):
     from win11toast import toast
 
-config_path = os.path.join(Path.home(), ".simplepomodoro")
+config_path = os.path.join(Path.home(), ".config/simplepomodoro")
 config_path_full = os.path.join(config_path, "config.json")
 
 
-def pomodoro_timer(duration):
+def pomodoro_timer(config, duration, command):
     end_time = time.time() + duration * 60
-    with tqdm(total=duration, leave=False, bar_format="{l_bar}{bar} {n_fmt}/{total_fmt} min") as pbar:
+    with tqdm(total=duration, leave=False, colour=config[command]["bar_colour"], bar_format="{l_bar}{bar} {n_fmt}/{total_fmt} min") as pbar:
         i = 0
         while time.time() < end_time:
             try:
@@ -46,8 +46,8 @@ def create_config_file():
         default_editor = "open -e"
 
     config = {
-        "work": {"duration": 50},
-        "break": {"duration": 10},
+        "work": {"duration": 50, "bar_colour": "green"},
+        "break": {"duration": 10, "bar_colour": "red"},
         "editor": default_editor
     }
 
@@ -55,7 +55,6 @@ def create_config_file():
 
     with open(config_path_full, "w") as f:
         json.dump(config, f, indent=4)
-    print("Created default configuration file at 'config.json'.")
 
 def calc_after_meeting_break(config, duration):
     break_per_work = config["break"]["duration"] / config["work"]["duration"]
@@ -110,4 +109,4 @@ if __name__ == "__main__":
         duration = int(sys.argv[2])
     else:
         duration = config[command]["duration"]
-    pomodoro_timer(duration)
+    pomodoro_timer(config, duration, command)
