@@ -4,6 +4,7 @@ import sys
 import json
 import math
 import platform
+import random
 from tqdm import tqdm
 from pathlib import Path
 if platform.system().lower().startswith('win'):
@@ -25,12 +26,13 @@ def pomodoro_timer(config, duration, command):
                     i = 0
                 time.sleep(1)
             except KeyboardInterrupt:
-                sys.exit(0)
+                break
 
+    phrase = config[command]["phrases"][random.randint(0, int(len(config[command]["phrases"])-1))]
     if platform.system().lower().startswith("win"):
-        toast("Pomodoro timer finished.")
+        toast(phrase, duration="short", buttons=['Ok'])
     elif platform.system().lower().startswith("dar"):
-        os.system("osascript -e 'display notification \"Pomodoro timer finished.\" with title \"Pomodoro Timer\" sound name \"\"'")
+        os.system(f"osascript -e 'display notification \"{phrase}\" with title \"Pomodoro Timer\" sound name \"\"'")
 
 def edit_config_file(config):
     if config["editor"]:
@@ -46,8 +48,8 @@ def create_config_file():
         default_editor = "open -e"
 
     config = {
-        "work": {"duration": 50, "bar_colour": "green"},
-        "break": {"duration": 10, "bar_colour": "red"},
+        "work": {"duration": 50, "bar_colour": "green", "phrases": [{"text": "Work phase ended"},{"text": "Work is done"}]},
+        "break": {"duration": 10, "bar_colour": "red", "phrases": [{"text": "Back to work"},{"text": "Break is done"}]},
         "editor": default_editor
     }
 
