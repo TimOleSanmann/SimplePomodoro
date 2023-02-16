@@ -28,11 +28,11 @@ def pomodoro_timer(config, duration, command):
             except KeyboardInterrupt:
                 break
 
-    phrase = config[command]["phrases"][random.randint(0, int(len(config[command]["phrases"])-1))]
+    phrase = config[command]["phrases"][random.randint(0, int(len(config[command]["phrases"])-1))]["text"]
     if platform.system().lower().startswith("win"):
         toast(phrase, duration="short", buttons=['Ok'])
     elif platform.system().lower().startswith("dar"):
-        os.system(f"osascript -e 'display notification \"{phrase}\" with title \"Pomodoro Timer\" sound name \"\"'")
+        os.system(f"osascript -e 'display notification \042{phrase}\042 with title \042Pomodoro Timer\042 sound name \042\042'")
 
 def edit_config_file(config):
     if config["editor"]:
