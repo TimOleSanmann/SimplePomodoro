@@ -16,6 +16,7 @@ config_path_full = os.path.join(config_path, "config.json")
 
 def pomodoro_timer(config, duration, command):
     end_time = time.time() + duration * 60
+    isInterupted = False
     with tqdm(total=duration, leave=False, colour=config[command]["bar_colour"], bar_format="{l_bar}{bar} {n_fmt}/{total_fmt} min") as pbar:
         i = 0
         while time.time() < end_time:
@@ -26,12 +27,14 @@ def pomodoro_timer(config, duration, command):
                     i = 0
                 time.sleep(1)
             except KeyboardInterrupt:
+                isInterupted = True
+                pbar.close()
                 break
 
     phrase = config[command]["phrases"][random.randint(0, int(len(config[command]["phrases"])-1))]["text"]
-    if platform.system().lower().startswith("win"):
+    if platform.system().lower().startswith("win") and not isInterupted:
         toast(phrase, duration="short", buttons=['Ok'])
-    elif platform.system().lower().startswith("dar"):
+    elif platform.system().lower().startswith("dar") and not isInterupted:
         os.system(f"osascript -e 'display notification \042{phrase}\042 with title \042Pomodoro Timer\042 sound name \042\042'")
 
 def edit_config_file(config):
