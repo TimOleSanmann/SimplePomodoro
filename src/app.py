@@ -16,25 +16,30 @@ config_path_full = os.path.join(config_path, "config.json")
 
 def pomodoro_timer(config, duration, command):
     end_time = time.time() + duration * 60
-    isInterupted = False
+    is_interupted = False
     with tqdm(total=duration, leave=False, colour=config[command]["bar_colour"], bar_format="{l_bar}{bar} {n_fmt}/{total_fmt} min") as pbar:
         i = 0
+        time_spent = 0
         while time.time() < end_time:
             try:
                 i += 1
                 if i == 15:
                     pbar.update(0.25)
+                    time_spent += 0.25
                     i = 0
                 time.sleep(1)
             except KeyboardInterrupt:
-                isInterupted = True
                 pbar.close()
+                is_interupted = True
                 break
 
+    if command == "work":
+        publish_suggested_break(calc_duration(config, time_spent))
+
     phrase = config[command]["phrases"][random.randint(0, int(len(config[command]["phrases"])-1))]["text"]
-    if platform.system().lower().startswith("win") and not isInterupted:
+    if platform.system().lower().startswith("win") and not is_interupted:
         toast(phrase, duration="short", buttons=['Ok'])
-    elif platform.system().lower().startswith("dar") and not isInterupted:
+    elif platform.system().lower().startswith("dar") and not is_interupted:
         os.system(f"osascript -e 'display notification \042{phrase}\042 with title \042Pomodoro Timer\042 sound name \042\042'")
 
 def edit_config_file(config):
@@ -61,11 +66,11 @@ def create_config_file():
     with open(config_path_full, "w") as f:
         json.dump(config, f, indent=4)
 
-def calc_after_meeting_break(config, duration):
+def calc_duration(config, duration):
     break_per_work = config["break"]["duration"] / config["work"]["duration"]
     return math.floor(break_per_work * (duration))
 
-def print_after_meet_break(duration):
+def publish_suggested_break(duration):
     print(f"You deserved a {duration} minutes break")
 
 def start_meeting(config):
@@ -78,7 +83,7 @@ def start_meeting(config):
             time.sleep(1)
             duration += 1
         except KeyboardInterrupt:
-            print_after_meet_break(calc_after_meeting_break(config, duration /60))
+            publish_suggested_break(calc_duration(config, duration /60))
             sys.exit(0)
 
 if __name__ == "__main__":
@@ -104,7 +109,7 @@ if __name__ == "__main__":
 
     if command == "meet" and len(sys.argv) == 3:
         duration = int(sys.argv[2])
-        print_after_meet_break(calc_after_meeting_break(config, duration))
+        publish_suggested_break(calc_duration(config, duration))
         sys.exit(0)
     elif command == "meet":
         start_meeting(config)
