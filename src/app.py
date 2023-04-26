@@ -56,14 +56,13 @@ def work(time):
     start_timer(int(duration), gc.work_bar_colour)
 
 @sp.command(name="break")
-@click.argument("time")
+@click.argument("time", required=False)
 def rest(time):
-    time = int(time)
     duration = gc.break_duration
     if time:
         duration = time
 
-    start_timer(duration, gc.break_bar_colour)
+    start_timer(int(duration), gc.break_bar_colour)
 
 
 @sp.command()
@@ -89,7 +88,18 @@ def start_timer(duration, bar_colour):
                 is_interupted = True
                 break
 
-    
+    if click.get_current_context().info_name == "work":
+        phrase = "Work phase is done"
+    elif click.get_current_context().info_name == "break":
+        phrase = "Break phase is done"
+    else:
+        phrase = ""
+
+    if platform.system().lower().startswith("win") and not is_interupted:
+        toast(phrase, duration="short", buttons=['Ok'])
+    elif platform.system().lower().startswith("dar") and not is_interupted:
+        os.system(f"osascript -e 'display notification \042{phrase}\042 with title \042Pomodoro Timer\042 sound name \042\042'")    
+
     if click.get_current_context().info_name == "work":
         publish_suggested_break(calc_duration(time_spent))
 
